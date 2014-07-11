@@ -1,0 +1,18 @@
+<div class="user container">
+	<div class="row">
+		<div class="col-md-3 avatar">
+			{% if user and user.image %}
+				<img src="{{user.image.src}}">
+			{% else %}
+				<span class="glyphicon large glyphicon-user"></span>
+			{% endif %}
+		</div>
+		<div class="col-md-7 details">
+			{% if user %}{{ user.name }}{% else %}Unknown{% endif %}
+		</div>
+		<div class="col-md-2 links">
+			<button type="button" class="btn btn-link">Settings</button>
+			<span>|</span>
+			<button type="button" class="btn btn-link">Logout</button>
+	</div>
+</div>

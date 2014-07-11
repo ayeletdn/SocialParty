@@ -1,0 +1,56 @@
+{% load staticfiles %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Events List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{% static 'event/css/event.css' %}">
+	<link rel="stylesheet" href="{% static 'event/css/list_events.css' %}">
+</head>
+<body>
+	{% include 'event/partials/_user_header.html' %}
+	<div class="events container">
+		<div class="row">
+			<div class="col-md-12">
+				<h1>Events list</h1>
+			</div>
+		</div>
+		<div class="add row">
+			<div class="col-md-4">
+				<a href="{% url 'addevent' %}"><span class="glyphicon medium glyphicon-plus-sign"></span> Add new event</a>
+			</div>
+			<div class="col-md-3">
+			</div>
+		</div>
+		{% for event in events %}
+			<div class="event row {% cycle 'odd' 'even' %}" id="{{event.id}}">
+				<div class="avatar col-md-1 col-sm-1 col-xs-1">
+					{% if event.image %}
+						<img src="{{event.image.src}}">
+					{% else %}
+						<span class="glyphicon large glyphicon-glass"></span>
+					{% endif %}
+				</div>
+				<div class="details col-md-9 col-sm-9 col-xs-6">
+					{{ event.name }}
+				</div>
+				<div class="actions col-md-2 col-sm-2 col-xs-2">
+					<div class="btn-group btn-group-sm">
+						<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span></button>
+						<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+					</div>
+				</div>
+			</div>
+		{% empty %}
+			<div class="event row">
+				<div class="avatar col-md-12">No Events</div>
+			</div>
+		{% endfor %}
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</body>
+</html>

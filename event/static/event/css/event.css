@@ -1,0 +1,24 @@
+
+/* Should be "global", for other pages too */
+.glyphicon {
+	/*vertical-align: middle;*/
+}
+.glyphicon.medium {
+	font-size: 20px;
+}
+.glyphicon.large {
+	font-size: 30px;
+}
+a:hover {
+	text-decoration: none;
+}
+
+/* User */
+.user {
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+
+.add {
+	font-size: 20px;
+}

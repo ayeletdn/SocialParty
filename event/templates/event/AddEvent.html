@@ -1,0 +1,33 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Event</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{% static 'event/css/event.css' %}">
+	<link rel="stylesheet" href="{% static 'event/css/edit_event.css' %}">
+</head>
+<body>
+	{% include 'event/partials/_user_header.html' %}
+	<div class="edit container">
+		<div class="row">
+			<div class="col-md-12">
+			    <h1>Add Event</h1>
+
+
+			    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+			    <form method="POST">
+			        {% csrf_token %}
+			        {{ form.as_p }}
+			    </form>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</body>
+</html>
