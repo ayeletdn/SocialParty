@@ -1,5 +1,13 @@
 .edit {
 	background-color: #f7f7f9;
 	border: 1px solid #e1e1e8;
-	border-radius: 5px;
+	border-radius: 0.5rem;
+}
+
+form {
+	padding-bottom: 1rem;
+}
+
+.guest_list {
+	display: none;
 }

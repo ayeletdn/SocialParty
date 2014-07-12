@@ -1,6 +1,6 @@
 from django import forms
 from django.db import models
-
+from django.forms import ModelForm
 
 class Guest(models.Model):
     email = models.EmailField()
@@ -30,7 +30,7 @@ class Attending(models.Model):
         unique_together = (('guest', 'event', 'product',))
 
 
-class EventForm(forms.Form):
-    name = models.CharField(max_length=100)
-    date = models.DateTimeField()
-    place = models.CharField(max_length=1000)
+class EventForm(ModelForm):
+    class Meta:
+        model = Event
+        fields = ['name', 'date', 'place']#, 'guest_list']
