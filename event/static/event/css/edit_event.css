@@ -11,3 +11,20 @@ form {
 .guest_list {
 	display: none;
 }
+
+.guest_list .list-group {
+	height: 200px;
+	overflow: auto;
+}
+
+.guest_list .form-control[disabled] {
+	cursor: default;
+}
+
+.guest .glyphicon-minus, .guest .glyphicon-plus {
+	cursor: pointer;
+}
+
+.ui-selected {
+	background-color: #f0ad4e;
+}

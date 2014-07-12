@@ -35,10 +35,11 @@
 					{% endfor %}
 					<div class="form-group guest_list" id="guest_list">
 						<label class="col-sm-2 control-label">Guest list</label>
-						<div class="col-sm-8">
-							<ul class="list-group" id="source_guest_list">
-								<li class="list-group-item"></li>
-							</ul>
+						<div class="col-sm-5" id="guest_list_inputs">
+							<div class="has-feedback guest">
+								<input type="text" class="form-control" disabled>
+								<span class="glyphicon glyphicon-minus form-control-feedback" title="Remove guest"></span>
+							</div>
 						</div>
 					</div>
 					<div class="form-group">
