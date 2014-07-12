@@ -1,58 +1,65 @@
 $(function() {
-	function Guests() {
+	function AdditiveList(options) {
+		options = options || {};
+		
 		var	thisClass = this,
-			guestList = [
+			$itemsList = $(options.list),
+			$itemsInputList = $itemsList.find('.item_inputs'),
+			$lineTemplate = $itemsList.find('.item');
+		this.showItemsList = function() {
+
+			// get the list of items
+			items = thisClass.getList();
+
+			$itemsList.show();
+
+			// an empty list
+			if ($.isArray(items) && items.length !== 0) {
+				// build the items list
+				for (var i in items) {
+					thisClass.setItem(items[i]);
+				}
+			}
+
+			// line template should have a plus sign and enabled
+			$lineTemplate.clone().prependTo($itemsInputList)
+						.find('input').prop('disabled', false).addClass('list_add').end()
+						.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+
+			$lineTemplate.hide();
+			thisClass.initListActions();
+		};
+		this.getList = function() {
+			return [
 				'anativ@gmail.com',
 				'eyaldn@gmail.com',
 				'figaro@paint.com',
 				'picaso@music.com',
 				'pigaro@faint.com'
-			],
-			$guestList = $('#guest_list_inputs'),
-			$lineTemplate = $guestList.find('.guest');
-		this.showGuestList = function() {
-			guests = guestList;
-
-			$('#guest_list').show();
-
-			// an empty guest list
-			if ($.isArray(guests) && guests.length !== 0) {
-				// build the guest list
-				for (var i in guests) {
-					thisClass.setGuest(guests[i]);
-				}
-			}
-
-			// line template should have a plus sign and enabled
-			$lineTemplate.clone().prependTo($guestList)
-						.find('input').prop('disabled', false).attr('id','guest_list_add').end()
-						.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-
-			$lineTemplate.hide();
-			thisClass.initGuestListActions($guestList);
+			];
 		};
-		this.setGuest = function(guest) {
-			$lineTemplate.clone(true, true).appendTo($guestList)
-						.find('input').val(guest).end() // set the value
-						.find('.glyphicon-minus').click(this.removeGuest).end() // bind remove
+		this.setItem = function(item) {
+			$lineTemplate.clone(true, true).appendTo($itemsInputList)
+						.find('input').val(item).end() // set the value
+						.find('.glyphicon-minus').click(this.removeItem).end() // bind remove
 						.show();
 		};
-		this.initGuestListActions = function($guestList) {
-			$guestList.find('.glyphicon-plus').click(this.addGuest).end()
-						.find('#guest_list_add').keypress(this.watchGuestInput);
+		this.initListActions = function() {
+			$itemsList.find('.glyphicon-plus').click(this.addItem).end()
+						.find('.list_add').keypress(this.watchItemInput);
 		};
-		this.removeGuest = function() {
+		this.removeItem = function() {
 			$(this).parent().remove();
 		};
-		this.addGuest = function() {
+		this.addItem = function() {
 			var $this = $(this);
 			var $input = $this.is("input") ? $this : $this.parent().find('input');
-			thisClass.setGuest($input.val());
+			thisClass.setItem($input.val());
 			$input.val('');
 		};
-		this.watchGuestInput = function(e) {
+		this.watchItemInput = function(e) {
 			if (e.keyCode === 13)
-				thisClass.addGuest.call(this, e);
+				thisClass.addItem.call(this, e);
 		};
 	}
 	var	initDate = function() {
@@ -63,11 +70,39 @@ $(function() {
 					document.getElementById('id_place')
 				);
 		},
+		advanceStep = function() {
+			switch ($('form').attr('data-step')) {
+				case 'step_0':
+					showGuests();
+					break;
+				case 'step_1':
+					showProducts();
+					break;
+			}
+			var products = new AdditiveList({
+				list: '#party_list'
+			});
+			$('button[name=step_2').click(advanceStep);
+		},
+		showGuests = function() {
+			var guests = new AdditiveList({
+				list: '#guest_list'
+			});
+			guests.showItemsList();
+			// advance step
+			$('form').attr('data-step', 'step_1');
+		},
+		showProducts = function() {
+			var products = new AdditiveList({
+				list: '#party_list'
+			});
+			products.showItemsList();
+			$('form').attr('data-step', 'step_2');
+		},
 		initialize = function() {
 			initDate();
 			initAddressSearch();
-			var guests = new Guests();
-			$('button[name=step_1').click(guests.showGuestList);
+			$('button[name=advance_step').click(advanceStep);
 		};
 
 	initialize();
