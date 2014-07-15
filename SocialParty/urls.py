@@ -8,4 +8,8 @@ urlpatterns = patterns('',
 
     url(r'^event/', include('event.urls')),
     url(r'^admin/', include(admin.site.urls)),
+
+
+    # rest framework browserable API
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 )

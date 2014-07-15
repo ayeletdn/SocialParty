@@ -1,6 +1,6 @@
 $(function() {
 	function AdditiveList(options) {
-		options = options || {};
+		this.options = options || {};
 		
 		var	thisClass = this,
 			$itemsList = $(options.list),
@@ -9,34 +9,30 @@ $(function() {
 		this.showItemsList = function() {
 
 			// get the list of items
-			items = thisClass.getList();
+			thisClass.getList().done(function(data) {
+				var items = data.results;
+				$itemsList.show();
 
-			$itemsList.show();
-
-			// an empty list
-			if ($.isArray(items) && items.length !== 0) {
-				// build the items list
-				for (var i in items) {
-					thisClass.setItem(items[i]);
+				// an empty list
+				if ($.isArray(items) && items.length !== 0) {
+					// build the items list
+					for (var i in items) {
+						thisClass.setItem(items[i].email);
+					}
 				}
-			}
 
-			// line template should have a plus sign and enabled
-			$lineTemplate.clone().prependTo($itemsInputList)
-						.find('input').prop('disabled', false).addClass('list_add').end()
-						.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+				// line template should have a plus sign and enabled
+				$lineTemplate.clone().prependTo($itemsInputList)
+							.find('input').prop('disabled', false).addClass('list_add').end()
+							.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
 
-			$lineTemplate.hide();
-			thisClass.initListActions();
+				$lineTemplate.hide();
+				thisClass.initListActions();
+			});
+
 		};
 		this.getList = function() {
-			return [
-				'anativ@gmail.com',
-				'eyaldn@gmail.com',
-				'figaro@paint.com',
-				'picaso@music.com',
-				'pigaro@faint.com'
-			];
+			return $.get(this.options.url);
 		};
 		this.setItem = function(item) {
 			$lineTemplate.clone(true, true).appendTo($itemsInputList)
@@ -86,7 +82,8 @@ $(function() {
 		},
 		showGuests = function() {
 			var guests = new AdditiveList({
-				list: '#guest_list'
+				list: '#guest_list',
+				url: '/event/guests/'
 			});
 			guests.showItemsList();
 			// advance step
@@ -94,7 +91,8 @@ $(function() {
 		},
 		showProducts = function() {
 			var products = new AdditiveList({
-				list: '#party_list'
+				list: '#party_list',
+				url: '/event/products'
 			});
 			products.showItemsList();
 			$('form').attr('data-step', 'step_2');

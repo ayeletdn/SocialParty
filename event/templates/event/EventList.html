@@ -2,17 +2,20 @@
 
 
 <!DOCTYPE html>
-<html>
+<html ng-app="event">
 <head>
 	<title>Events List</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="{% static 'event/css/event.css' %}">
 	<link rel="stylesheet" href="{% static 'event/css/list_events.css' %}">
+	<script src="{% static 'event/js/lib/angular.min.js' %}"></script>
+	{# <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script> #}
+	<script src="{% static 'event/js/eventList.js' %}"></script>
 </head>
 <body>
 	{% include 'event/partials/_user_header.html' %}
-	<div class="events container">
+	<div class="events container" ng-controller="EventController as eventer">
 		<div class="row">
 			<div class="col-md-12">
 				<h1>Events list</h1>
@@ -25,14 +28,13 @@
 			<div class="col-md-3">
 			</div>
 		</div>
-		{% for event in events %}
-			<div class="event row {% cycle 'odd' 'even' %}" id="{{event.id}}">
+		{% verbatim %}
+			<div class="event row ng-class: {'odd': $odd, 'even': $even};" id="{{event.id}}" ng-repeat="event in eventer.eventlist">
 				<div class="avatar col-md-1 col-sm-1 col-xs-1">
-					{% if event.image %}
-						<img src="{{event.image.src}}">
-					{% else %}
-						<span class="glyphicon large glyphicon-glass"></span>
-					{% endif %}
+					<!-- if image -->
+					<img ng-src="{{event.image.src}}" ng-show="event.image">
+					<!-- if no image -->
+					<span class="glyphicon large glyphicon-glass" ng-show="!event.image"></span>
 				</div>
 				<div class="details col-md-9 col-sm-9 col-xs-6">
 					{{ event.name }}
@@ -44,13 +46,13 @@
 					</div>
 				</div>
 			</div>
-		{% empty %}
-			<div class="event row">
+			<div class="event row" ng-hide="eventer.eventlist">
 				<div class="avatar col-md-12">No Events</div>
 			</div>
-		{% endfor %}
+		{% endverbatim %}
 	</div>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	{# <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> #}
+	<script src="{% static 'event/js/lib/bootstrap.min.js' %}"></script>
 </body>
 </html>

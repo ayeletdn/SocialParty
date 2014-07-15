@@ -11,6 +11,7 @@ class Guest(models.Model):
 
 
 class Product(models.Model):
+    user = models.ForeignKey(User)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     required_quantity = models.IntegerField(default=1)
@@ -37,4 +38,4 @@ class Attending(models.Model):
 class EventForm(ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'date', 'place']#, 'guest_list']
+        fields = ['user', 'name', 'date', 'place']#, 'guest_list']

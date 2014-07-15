@@ -20,6 +20,7 @@ class Migration(SchemaMigration):
         # Adding model 'Product'
         db.create_table(u'event_product', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('required_quantity', self.gf('django.db.models.fields.IntegerField')(default=1)),
@@ -133,7 +134,8 @@ class Migration(SchemaMigration):
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'required_quantity': ('django.db.models.fields.IntegerField', [], {'default': '1'})
+            'required_quantity': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
         }
     }
 
