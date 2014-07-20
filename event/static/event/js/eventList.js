@@ -16,20 +16,11 @@
 		};
 	});
 
-	eventApp.controller('EventController', function ($scope, EventsService) {
-		$scope = this;
+	eventApp.controller('EventController', ['$scope', 'EventsService', function ($scope, EventsService) {
+		ctrlScope = this;
 		EventsService.fetchEvents().success(function(events) {
-			$scope.eventlist = events;
+			ctrlScope.eventlist = events;
 		});
-	});
-
-	// eventApp.controller('EventController', function() {
-	// this.eventlist = preEvents;
-	// });
-
-	var preEvents = [
-		{ id: 1, name: 'Alvin'},
-		{ id: 2, name: 'Simon'},
-		{ id: 3, name: 'Theodore'},
-	];
+	}]);
+	
 })();

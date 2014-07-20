@@ -19,6 +19,18 @@ a:hover {
 	margin-bottom: 12px;
 }
 
+.event .avatar .glyphicon {
+	border: 1px solid #ccc;
+	border-radius: 0.2em;
+	padding: 0.2em;
+}
+.event:hover .avatar .glyphicon {
+	border-color: black;
+}
+.event:hover button{
+	border-color: black;
+}
+
 .add {
 	font-size: 20px;
 }
