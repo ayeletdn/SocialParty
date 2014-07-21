@@ -67,7 +67,9 @@
 		};
 	});
 
-	editEventApp.controller('EditEventController', ['$scope', '$routeParams', 'EditEvent', function ($scope, $routeParams, EditEvent) {
+	editEventApp.controller('EditEventController',
+			['$scope', '$routeParams', 'EditEvent',
+			function ($scope, $routeParams, EditEvent) {
 		var eventid = $routeParams.eventId; // event ID, if requested
 		if (eventId) {
 			EditEvent.fetchEvent(eventid).success(function(eventData) {
