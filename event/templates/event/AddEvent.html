@@ -1,7 +1,7 @@
 {% load staticfiles %}
 
 <!DOCTYPE html>
-<html>
+<html ng-app="editevent">
 <head>
 	<title>Add Event</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,10 +9,14 @@
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 	<link rel="stylesheet" href="{% static 'event/css/event.css' %}">
 	<link rel="stylesheet" href="{% static 'event/css/edit_event.css' %}">
+	<script src="{% static 'event/js/lib/angular.min.js' %}"></script>
+	<script src="{% static 'event/js/lib/angular-route.js' %}"></script>
 </head>
 <body>
 	{% include 'event/partials/_user_header.html' %}
-	<div class="container">
+	<div ng-view></div>
+	{% comment %}
+	<div class="container" ng-controller="EditEventController as editor">
 		<div class="row">
 			<div class="edit col-sm-offset-1 col-sm-10">
 				<h1>Add Event</h1>
@@ -60,6 +64,7 @@
 			</div>
 		</div>
 	</div>
+	{% endcomment %}
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 	<script src="//code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
