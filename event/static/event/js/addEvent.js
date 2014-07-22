@@ -23,6 +23,10 @@
 					return $http.put('/event/' + eventid, eventdata);
 				else
 					return $http.post('/event/add/', eventdata);
+			},
+			validateEvent: function(eventData) {
+				console.log(eventData);
+				return true;
 			}
 		};
 	});
@@ -67,15 +71,52 @@
 		};
 	});
 
-	editEventApp.controller('EditEventController',
-			['$scope', '$routeParams', 'EditEvent',
-			function ($scope, $routeParams, EditEvent) {
+	editEventApp.controller('EditEventController', ['$scope', '$routeParams', 'EditEvent', function ($scope, $routeParams, EditEvent) {
 		var eventid = $routeParams.eventId; // event ID, if requested
-		if (eventId) {
+
+		$scope.event = {}; // The event data
+
+		// Form UI management
+		// The form's stage - if event defined, by ready to save, otherwise, start from the top
+		$scope.stage = eventid !== undefined ? 2 : 0;
+		$scope.showGuests = false; // Should show the guests list
+		$scope.showProducts = false; // Should show the products list
+
+		// Load the event 
+		if (eventid) {
 			EditEvent.fetchEvent(eventid).success(function(eventData) {
 				$scope.event = eventData;
+
+				// if no data found, start from scratch
+				if (!EditEvent.validateEvent(eventData)) $scope.stage = 0;
 			});
 		}
+
+		/**
+		 * Continue in the form stages 
+		 */
+		$scope.continue = function() {
+			switch ($scope.stage) {
+				case 0:
+					// TODO: Validste
+					if (EditEvent.validateEvent($scope.event)) {
+						$scope.showGuests = true;
+						$scope.stage = 1;
+					}
+					break;
+				case 1:
+					// TODO: Validste
+					$scope.showProducts = true;
+					$scope.stage = 2;
+					break;
+				case 2:
+					// TODO: Validste
+					EditEvent.saveEvent(eventData);
+					break;
+			}
+		};
+
+
 	}]);
 
 	// function AdditiveList(options) {

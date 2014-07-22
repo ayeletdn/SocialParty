@@ -8,10 +8,6 @@ form {
 	padding-bottom: 1rem;
 }
 
-.item_list {
-	display: none;
-}
-
 .item_list .form-control[disabled] {
 	cursor: default;
 }
