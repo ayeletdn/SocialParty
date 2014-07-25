@@ -133,7 +133,9 @@
 		};
 	});
 
-	// A directive to handle the location input
+	// A directive to handle the location item_inputs
+	// Not working. Asked Question on StackOverflow:
+	// http://stackoverflow.com/questions/24949545/error-from-google-maps-api-when-in-an-angular-directive
 	editEventApp.directive('locationInput', function() {
 		function link(scope, element, attrs) {
 			scope.searchBox = new google.maps.places.SearchBox(element);
