@@ -1,6 +1,6 @@
 (function() {
 
-	var editEventApp = angular.module('editevent', ['ngRoute'])
+	var editEventApp = angular.module('editevent', ['ngRoute', 'ngAutocomplete'])
 					.config(function ($routeProvider) {
 						$routeProvider
 							.when('/:eventId?', {
@@ -73,12 +73,17 @@
 
 	editEventApp.controller('EditEventController', ['$scope', '$routeParams', 'EditEvent', function ($scope, $routeParams, EditEvent) {
 		var eventid = $routeParams.eventId; // event ID, if requested
+		var eventStates = {
+			NEW: 0,
+			BASIC: 1,
+			HAS_GUESTS: 2
+		};
 
 		$scope.event = {}; // The event data
 
 		// Form UI management
 		// The form's stage - if event defined, by ready to save, otherwise, start from the top
-		$scope.stage = eventid !== undefined ? 2 : 0;
+		$scope.stage = eventid !== undefined ? eventStates.HAS_GUESTS : eventStates.NEW;
 		$scope.showGuests = false; // Should show the guests list
 		$scope.showProducts = false; // Should show the products list
 
@@ -88,7 +93,7 @@
 				$scope.event = eventData;
 
 				// if no data found, start from scratch
-				if (!EditEvent.validateEvent(eventData)) $scope.stage = 0;
+				if (!EditEvent.validateEvent(eventData)) $scope.stage = eventStates.NEW;
 			});
 		}
 
@@ -97,27 +102,48 @@
 		 */
 		$scope.continue = function() {
 			switch ($scope.stage) {
-				case 0:
+				case eventStates.NEW:
 					// TODO: Validste
 					if (EditEvent.validateEvent($scope.event)) {
 						$scope.showGuests = true;
-						$scope.stage = 1;
+						$scope.stage = eventStates.BASIC;
 					}
 					break;
-				case 1:
+				case eventStates.BASIC:
 					// TODO: Validste
 					$scope.showProducts = true;
-					$scope.stage = 2;
+					$scope.stage = eventStates.HAS_GUESTS;
 					break;
-				case 2:
+				case eventStates.HAS_GUESTS:
 					// TODO: Validste
 					EditEvent.saveEvent(eventData);
 					break;
 			}
 		};
-
-
 	}]);
+
+	// A directive to handle the date time input
+	editEventApp.directive('datetimeInput', function() {
+		function link(scope, element, attrs) {
+			$(element).datepicker();
+		}
+
+		return {
+			link: link
+		};
+	});
+
+	// A directive to handle the location input
+	editEventApp.directive('locationInput', function() {
+		function link(scope, element, attrs) {
+			scope.searchBox = new google.maps.places.SearchBox(element);
+			console.log(scope.searchBox);
+		}
+
+		return {
+			link: link
+		};
+	});
 
 	// function AdditiveList(options) {
 	// 	this.options = options || {};
