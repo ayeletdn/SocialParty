@@ -24,24 +24,8 @@
 						<input 	type="text" id="event_place" class="form-control" ng-model="event.place" ng-autocomplete>
 					</div>
 				</div>
-				<div class="form-group item_list" ng-show="showGuests" id="guest_list">
-					<label class="col-sm-2 control-label">Guest list</label>
-					<div class="col-sm-5 item_inputs" id="guest_list_inputs">
-						<div class="has-feedback item">
-							<input type="text" class="form-control" disabled>
-							<span class="glyphicon glyphicon-minus form-control-feedback" title="Remove"></span>
-						</div>
-					</div>
-				</div>
-				<div class="form-group item_list" ng-show="showProducts" id="party_list">
-					<label class="col-sm-2 control-label">Party list</label>
-					<div class="col-sm-5 item_inputs" id="party_list_inputs">
-						<div class="has-feedback item">
-							<input type="text" class="form-control" disabled>
-							<span class="glyphicon glyphicon-minus form-control-feedback" title="Remove"></span>
-						</div>
-					</div>
-				</div>
+				<items-list list="guests" title="Guest list"></items-list>
+				<items-list list="products" title="Product list"></items-list>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
 						<button type="button" name="advance_step" class="btn btn-default" ng-click="continue()">Continue</button>

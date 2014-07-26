@@ -84,8 +84,6 @@
 		// Form UI management
 		// The form's stage - if event defined, by ready to save, otherwise, start from the top
 		$scope.stage = eventid !== undefined ? eventStates.HAS_GUESTS : eventStates.NEW;
-		$scope.showGuests = false; // Should show the guests list
-		$scope.showProducts = false; // Should show the products list
 
 		// Load the event 
 		if (eventid) {
@@ -97,6 +95,9 @@
 			});
 		}
 
+		$scope.guests = {show: false, id: 'guest'};
+		$scope.products = {show: false, id: 'product'};
+
 		/**
 		 * Continue in the form stages 
 		 */
@@ -105,13 +106,13 @@
 				case eventStates.NEW:
 					// TODO: Validste
 					if (EditEvent.validateEvent($scope.event)) {
-						$scope.showGuests = true;
+						$scope.guests.show = true;
 						$scope.stage = eventStates.BASIC;
 					}
 					break;
 				case eventStates.BASIC:
 					// TODO: Validste
-					$scope.showProducts = true;
+					$scope.products.show = true;
 					$scope.stage = eventStates.HAS_GUESTS;
 					break;
 				case eventStates.HAS_GUESTS:
@@ -146,6 +147,19 @@
 			link: link
 		};
 	});
+
+	// A directive to handle an items list
+	editEventApp.directive('itemsList', function() {
+		return {
+			restrict: 'E',
+			scope: {
+				list: '=',
+				title: '@'
+			},
+			templateUrl: '/static/event/directives/itemlist.html'
+		};
+	});
+
 
 	// function AdditiveList(options) {
 	// 	this.options = options || {};
