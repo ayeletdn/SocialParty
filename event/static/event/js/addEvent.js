@@ -25,48 +25,28 @@
 					return $http.post('/event/add/', eventdata);
 			},
 			validateEvent: function(eventData) {
-				console.log(eventData);
+				console.log('validateEvent ', eventData);
 				return true;
 			}
 		};
 	});
 
-	editEventApp.factory('Guests', function ($http, ofEvent) {
+	editEventApp.factory('ListService', function ($http) {
 		return {
 			/**
-			 * Add a new guest to the guests list of the event
-			 * @param {Guest} data The data of the guest
+			 * Add a new item to the list
+			 * @param {Object} data The data of the item to add
 			 */
-			addGuest: function(data) {
-				return $http.post('/guest/' + ofEvent, data);
+			addItem: function(url, data) {
+				return $http.post(url, data);
 			},
 			/**
-			 * Remove a guest from the event's guest list
-			 * @param  {String} id The Guest's id
+			 * Remove an item from the list
+			 * @param  {String} id The items's id
 			 * @return {Promise}    A promise object to use when action is executed
 			 */
-			removeGuest: function(id) {
-				return $http.delete('/guest/' + ofEvent + '/' + id);
-			}
-		};
-	});
-
-	editEventApp.factory('Products', function ($http, ofEvent, ofGuest) {
-		return {
-			/**
-			 * Add a new product to the guests list of the event
-			 * @param {Guest} data The data of the guest
-			 */
-			addGuest: function(data) {
-				return $http.post('/product/' + ofEvent + '/' + ofGuest, data);
-			},
-			/**
-			 * Remove a product from the event's guest list
-			 * @param  {String} id The Guest's id
-			 * @return {Promise}    A promise object to use when action is executed
-			 */
-			removeGuest: function(id) {
-				return $http.delete('/product/' + ofEvent + '/' + ofGuest + '/' + id);
+			removeItem: function(url, id) {
+				return $http.delete(url + '/' + id);
 			}
 		};
 	});
@@ -95,8 +75,8 @@
 			});
 		}
 
-		$scope.guests = {show: false, id: 'guest'};
-		$scope.products = {show: false, id: 'product'};
+		$scope.guests = {show: false, id: 'guest', url: '/event/guests'};
+		$scope.products = {show: false, id: 'product', url: '/event/products'};
 
 		/**
 		 * Continue in the form stages 
@@ -149,17 +129,92 @@
 	});
 
 	// A directive to handle an items list
-	editEventApp.directive('itemsList', function() {
+	editEventApp.directive('itemsList', ['ListService', function(ListService) {
+		var link = function (scope, element, attrs) {
+
+			scope.items = [0, 1];
+
+			function addItem(data) {
+				ListService.addItem(scope.url, data)
+					.success(function addSuccess(data) {
+						console.log(this);
+						// add the item to the array
+						scope.items.push(data);
+
+					})
+					.error(function addFailure(data) {
+
+					});
+			}
+
+			function removeItem(id) {
+				ListService.removeItem(scope.url, id)
+					.success(function removeSuccess() {
+						console.log(this);
+					})
+					.error(function removeFailure() {
+
+					});
+			}
+		};
+
 		return {
 			restrict: 'E',
 			scope: {
 				list: '=',
 				title: '@'
 			},
-			templateUrl: '/static/event/directives/itemlist.html'
+			templateUrl: '/static/event/directives/itemlist.html',
+			link: link
+		};
+	}]);
+
+	editEventApp.directive('item', function() {
+		var compile = function(scope, element, attrs) {
+			switch (scope.type) {
+				case 'add':
+					// set the plus icon
+					element.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+					// enable the input
+					element.find('input').attr('disabled', false);
+					break;
+			}
+		};
+
+		var link = function(scope, element, attrs) {
+			function add() {
+				console.log('Add item ', this);
+			}
+
+			function remove() {
+				console.log('Remove item ', this);
+			}
+
+			switch (scope.type) {
+				case 'add':
+					element.bind('click', add);
+					break;
+				case 'remove':
+					element.bind('click', remove);
+					break;
+				default:
+					console.log('unknown scope type', scope.type);
+			}
+		};
+
+		return {
+			// compile: compile,
+			restrict: 'E',
+			templateUrl: '/static/event/directives/item.html',
+			scope: {
+				type: '@'
+			},
+			link: {
+				pre: compile,
+				post: link
+			}
 		};
 	});
-
 
 	// function AdditiveList(options) {
 	// 	this.options = options || {};

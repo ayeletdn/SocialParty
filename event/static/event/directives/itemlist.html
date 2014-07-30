@@ -1,9 +1,7 @@
 <div class="form-group item_list" ng-show="list.show" id="{{ list.id }}">
 	<label class="col-sm-2 control-label">{{ title }}:</label>
 	<div class="col-sm-5 item_inputs" id="{{ list.id }}_inputs">
-		<div class="has-feedback item">
-			<input type="text" class="form-control" disabled>
-			<span class="glyphicon glyphicon-minus form-control-feedback" title="Remove"></span>
-		</div>
+		<item type="add"></item>
+		<item type="remove" ng-repeat="item in items"></item>
 	</div>
 </div>
