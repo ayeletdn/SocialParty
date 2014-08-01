@@ -148,29 +148,17 @@
 		};
 	}]);
 
-	// Split this into two directives - item add and item (remove)
-	editEventApp.directive('item', ['$log', 'ListService', function($log, ListService) {
+	editEventApp.directive('addItem', ['$log', 'ListService', function($log, ListService) {
 		var service = ListService;
 
-		var compile = function(scope, element, attrs) {
-			switch (scope.type) {
-				case 'add':
-					// set the plus icon
-					element.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus').attr('title', 'Add');
-					// enable the input
-					element.find('input').attr('disabled', false);
-					break;
-			}
-		};
-
 		var link = function(scope, element, attrs) {
-			var parentObj = scope.$parent.list;
+			var parentObj = scope.list;
 
 			function add(scope, e) {
 				$log.debug('Add item');
-				if (!parentObj.validate(scope.item))
-					return $log.error('Invalid item', scope.item);
-				service.addItem(parentObj.url, scope.item)
+				if (!parentObj.validate(scope.value))
+					return $log.error('Invalid item', scope.value);
+				service.addItem(parentObj.url, scope.value)
 					.success(function addSuccess(data, status, headers, config) {
 						$log.debug('addSuccess', data);
 					})
@@ -178,6 +166,27 @@
 						$log.error('Add item failure', {'data': data, 'status': status, 'headers': headers, 'config': config});
 					});
 			}
+
+			// Bind click event according to type
+			var action = element.find('span');
+			action.bind('click', add.bind(element, scope));
+		};
+
+		return {
+			restrict: 'E',
+			templateUrl: '/static/event/directives/additem.html',
+			link: link
+			
+		};
+
+
+	}]);
+
+	editEventApp.directive('item', ['$log', 'ListService', function($log, ListService) {
+		var service = ListService;
+
+		var link = function(scope, element, attrs) {
+			var parentObj = scope.$parent.list;
 
 			function remove(scope, e) {
 				$log.debug('Remove item');
@@ -191,16 +200,8 @@
 			}
 
 			// Bind click event according to type
-			switch (scope.type) {
-				case 'add':
-					element.bind('click', add.bind(element, scope));
-					break;
-				case 'remove':
-					element.bind('click', remove.bind(element, scope));
-					break;
-				default:
-					$log.debug('unknown scope type', scope.type);
-			}
+			var action = element.find('span');
+			action.bind('click', remove.bind(element, scope));
 		};
 
 		return {
@@ -208,13 +209,10 @@
 			templateUrl: '/static/event/directives/item.html',
 			scope: {
 				index: '@',
-				type: '@',
 				item: '='
 			},
-			link: {
-				pre: compile,
-				post: link
-			}
+			link: link
+			
 		};
 	}]);
 

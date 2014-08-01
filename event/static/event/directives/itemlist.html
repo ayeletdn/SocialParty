@@ -1,7 +1,7 @@
 <div class="form-group item_list" ng-show="list.show" id="{{ list.id }}">
 	<label class="col-sm-2 control-label">{{ title }}:</label>
 	<div class="col-sm-5 item_inputs" id="{{ list.id }}_inputs">
-		<item type="add"></item>
-		<item type="remove" ng-repeat="item in list.items" item="item" index="{{ $index }}"></item>
+		<add-item></add-item>
+		<item ng-repeat="item in list.items" item="item" index="{{ $index }}"></item>
 	</div>
 </div>
