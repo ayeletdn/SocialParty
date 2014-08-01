@@ -51,12 +51,16 @@
 		};
 	});
 
-	editEventApp.controller('EditEventController', ['$scope', '$routeParams', 'EditEvent', function ($scope, $routeParams, EditEvent) {
+	editEventApp.controller('EditEventController', ['$scope', '$log', '$routeParams', 'EditEvent', function ($scope, $log, $routeParams, EditEvent) {
 		var eventid = $routeParams.eventId; // event ID, if requested
 		var eventStates = {
 			NEW: 0,
 			BASIC: 1,
 			HAS_GUESTS: 2
+		};
+		var validateGuest = function(data) {
+			$log.debug(data);
+			return true;
 		};
 
 		$scope.event = {}; // The event data
@@ -75,7 +79,10 @@
 			});
 		}
 
-		$scope.guests = {show: false, id: 'guest', url: '/event/guests'};
+		$scope.guests = {show: false, id: 'guest', url: '/event/guests', validate: validateGuest, items: [
+			{email: 'ayelet@gmail.com'},
+			{email: 'eyal@gmail.com'}
+		]};
 		$scope.products = {show: false, id: 'product', url: '/event/products'};
 
 		/**
@@ -130,33 +137,6 @@
 
 	// A directive to handle an items list
 	editEventApp.directive('itemsList', ['ListService', function(ListService) {
-		var link = function (scope, element, attrs) {
-
-			scope.items = [0, 1];
-
-			function addItem(data) {
-				ListService.addItem(scope.url, data)
-					.success(function addSuccess(data) {
-						console.log(this);
-						// add the item to the array
-						scope.items.push(data);
-
-					})
-					.error(function addFailure(data) {
-
-					});
-			}
-
-			function removeItem(id) {
-				ListService.removeItem(scope.url, id)
-					.success(function removeSuccess() {
-						console.log(this);
-					})
-					.error(function removeFailure() {
-
-					});
-			}
-		};
 
 		return {
 			restrict: 'E',
@@ -164,17 +144,19 @@
 				list: '=',
 				title: '@'
 			},
-			templateUrl: '/static/event/directives/itemlist.html',
-			link: link
+			templateUrl: '/static/event/directives/itemlist.html'
 		};
 	}]);
 
-	editEventApp.directive('item', function() {
+	// Split this into two directives - item add and item (remove)
+	editEventApp.directive('item', ['$log', 'ListService', function($log, ListService) {
+		var service = ListService;
+
 		var compile = function(scope, element, attrs) {
 			switch (scope.type) {
 				case 'add':
 					// set the plus icon
-					element.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+					element.find('span').removeClass('glyphicon-minus').addClass('glyphicon-plus').attr('title', 'Add');
 					// enable the input
 					element.find('input').attr('disabled', false);
 					break;
@@ -182,39 +164,59 @@
 		};
 
 		var link = function(scope, element, attrs) {
-			function add() {
-				console.log('Add item ', this);
+			var parentObj = scope.$parent.list;
+
+			function add(scope, e) {
+				$log.debug('Add item');
+				if (!parentObj.validate(scope.item))
+					return $log.error('Invalid item', scope.item);
+				service.addItem(parentObj.url, scope.item)
+					.success(function addSuccess(data, status, headers, config) {
+						$log.debug('addSuccess', data);
+					})
+					.error(function addFailure(data, status, headers, config) {
+						$log.error('Add item failure', {'data': data, 'status': status, 'headers': headers, 'config': config});
+					});
 			}
 
-			function remove() {
-				console.log('Remove item ', this);
+			function remove(scope, e) {
+				$log.debug('Remove item');
+				service.removeItem(parentObj.url, scope.index)
+					.success(function removeSuccess(data, status, headers, config) {
+						$log.info('Remove item success', data);
+					})
+					.error(function removeFailure(data, status, headers, config) {
+						$log.error('Remove item failure', {'data': data, 'status': status, 'headers': headers, 'config': config});
+					});
 			}
 
+			// Bind click event according to type
 			switch (scope.type) {
 				case 'add':
-					element.bind('click', add);
+					element.bind('click', add.bind(element, scope));
 					break;
 				case 'remove':
-					element.bind('click', remove);
+					element.bind('click', remove.bind(element, scope));
 					break;
 				default:
-					console.log('unknown scope type', scope.type);
+					$log.debug('unknown scope type', scope.type);
 			}
 		};
 
 		return {
-			// compile: compile,
 			restrict: 'E',
 			templateUrl: '/static/event/directives/item.html',
 			scope: {
-				type: '@'
+				index: '@',
+				type: '@',
+				item: '='
 			},
 			link: {
 				pre: compile,
 				post: link
 			}
 		};
-	});
+	}]);
 
 	// function AdditiveList(options) {
 	// 	this.options = options || {};
