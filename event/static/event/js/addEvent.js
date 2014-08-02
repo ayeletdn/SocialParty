@@ -1,7 +1,12 @@
 (function() {
 
 	var editEventApp = angular.module('editevent', ['ngRoute', 'ngAutocomplete'])
-					.config(function ($routeProvider) {
+					.config(function ($routeProvider, $httpProvider) {
+						// Send out CSRF Token
+						$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+						$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+						// Configure the router
 						$routeProvider
 							.when('/:eventId?', {
 								templateUrl: '/static/event/views/edit.html',
@@ -9,6 +14,11 @@
 							});
 						});
 
+	/**
+	 * Event Service
+	 * @param  {[type]} $http [description]
+	 * @return {[type]}       [description]
+	 */
 	editEventApp.factory('EditEvent', function ($http) {
 		return {
 			fetchEvent: function(eventid) {
@@ -31,26 +41,50 @@
 		};
 	});
 
+	/**
+	 * List Service
+	 * @param  {[type]} $http [description]
+	 * @return {[type]}       [description]
+	 */
 	editEventApp.factory('ListService', function ($http) {
 		return {
 			/**
 			 * Add a new item to the list
-			 * @param {Object} data The data of the item to add
+			 * @param  {String} url The base URL for the list
+			 * @return {Promise}    A promise object to use when action is executed
 			 */
 			addItem: function(url, data) {
 				return $http.post(url, data);
 			},
 			/**
 			 * Remove an item from the list
+			 * @param  {String} url The base URL for the list
 			 * @param  {String} id The items's id
 			 * @return {Promise}    A promise object to use when action is executed
 			 */
 			removeItem: function(url, id) {
-				return $http.delete(url + '/' + id);
+				return $http.delete(url + id);
+			},
+
+			/**
+			 * Get the list of items
+			 * @param  {String} url The base URL for the list
+			 * @return {Promise}    A promise object to use when action is executed
+			 */
+			getItems: function(url) {
+				return $http.get(url);
 			}
 		};
 	});
 
+	/**
+	 * Event Controller
+	 * @param  {[type]} $scope       [description]
+	 * @param  {[type]} $log         [description]
+	 * @param  {[type]} $routeParams [description]
+	 * @param  {[type]} EditEvent    [description]
+	 * @return {[type]}              [description]
+	 */
 	editEventApp.controller('EditEventController', ['$scope', '$log', '$routeParams', 'EditEvent', function ($scope, $log, $routeParams, EditEvent) {
 		var eventid = $routeParams.eventId; // event ID, if requested
 		var eventStates = {
@@ -79,11 +113,20 @@
 			});
 		}
 
-		$scope.guests = {show: false, id: 'guest', url: '/event/guests', validate: validateGuest, items: [
-			{email: 'ayelet@gmail.com'},
-			{email: 'eyal@gmail.com'}
-		]};
-		$scope.products = {show: false, id: 'product', url: '/event/products'};
+		// Init the two lists
+		$scope.guests = {
+			show: false,
+			id: 'guest',
+			url: '/event/guests/',
+			validate: validateGuest,
+			items: []
+		};
+		$scope.products = {
+			show: false,
+			id: 'product',
+			url: '/event/products/',
+			items: []
+		};
 
 		/**
 		 * Continue in the form stages 
@@ -136,7 +179,21 @@
 	});
 
 	// A directive to handle an items list
-	editEventApp.directive('itemsList', ['ListService', function(ListService) {
+	editEventApp.directive('itemsList', ['$log', 'ListService', function($log, ListService) {
+
+		var service = ListService;
+
+		var link = function(scope, element, attrs) {
+			var list = scope.list;
+			// get the items and store them in the scope
+			service.getItems(scope.list.url)
+				.success(function addSuccess(data, status, headers, config) {
+					list.items = data.results;
+				})
+				.error(function addFailure(data, status, headers, config) {
+					$log.error('getItems failure', {'data': data, 'status': status, 'headers': headers, 'config': config});
+				});
+		};
 
 		return {
 			restrict: 'E',
@@ -144,23 +201,37 @@
 				list: '=',
 				title: '@'
 			},
-			templateUrl: '/static/event/directives/itemlist.html'
+			templateUrl: '/static/event/directives/itemlist.html',
+			link: link
 		};
 	}]);
 
+	/**
+	 * A directive to add an item to a list
+	 * 
+	 * @param  {Service} $log        The AngularJS log service
+	 * @param  {Service} ListService The list service, which manages items
+	 */
 	editEventApp.directive('addItem', ['$log', 'ListService', function($log, ListService) {
 		var service = ListService;
 
 		var link = function(scope, element, attrs) {
-			var parentObj = scope.list;
+			// keep the list on scope
+			var itemsList = scope.list;
 
 			function add(scope, e) {
 				$log.debug('Add item');
-				if (!parentObj.validate(scope.value))
+				// validate
+				if ('validate' in itemsList && !itemsList.validate(scope.value))
 					return $log.error('Invalid item', scope.value);
-				service.addItem(parentObj.url, scope.value)
+
+				// send to server
+				service.addItem(itemsList.url, {email: scope.value, name: 'my name', user: 1})
 					.success(function addSuccess(data, status, headers, config) {
-						$log.debug('addSuccess', data);
+						// store the data in the array
+						itemsList.items.push(data);
+						// clear the input
+						scope.value = '';
 					})
 					.error(function addFailure(data, status, headers, config) {
 						$log.error('Add item failure', {'data': data, 'status': status, 'headers': headers, 'config': config});
@@ -178,21 +249,26 @@
 			link: link
 			
 		};
-
-
 	}]);
 
+	/**
+	 * The item directive. 
+	 * 
+	 * @param  {Service} $log        The AngularJS log service
+	 * @param  {Service} ListService The list service, which manages items
+	 */
 	editEventApp.directive('item', ['$log', 'ListService', function($log, ListService) {
 		var service = ListService;
 
 		var link = function(scope, element, attrs) {
-			var parentObj = scope.$parent.list;
+			var itemsList = scope.$parent.list;
 
 			function remove(scope, e) {
 				$log.debug('Remove item');
-				service.removeItem(parentObj.url, scope.index)
+				service.removeItem(itemsList.url, scope.item.id)
 					.success(function removeSuccess(data, status, headers, config) {
-						$log.info('Remove item success', data);
+						// remove the item from the list
+						itemsList.items.splice(scope.index, 1);
 					})
 					.error(function removeFailure(data, status, headers, config) {
 						$log.error('Remove item failure', {'data': data, 'status': status, 'headers': headers, 'config': config});
